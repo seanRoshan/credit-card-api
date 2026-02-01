@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "credit_cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "annualFee", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "credit_cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "annualFee", "order": "ASCENDING" },
+        { "fieldPath": "ratings.overall", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

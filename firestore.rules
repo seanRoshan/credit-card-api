@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read access to credit cards for everyone
+    match /credit_cards/{cardId} {
+      allow read: if true;
+      allow write: if false; // Only admin SDK can write
+    }
+  }
+}

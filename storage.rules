@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow public read access to credit card images
+    match /credit-cards/images/{allPaths=**} {
+      allow read: if true;
+      allow write: if false; // Only admin SDK can write
+    }
+  }
+}
