@@ -1,11 +1,243 @@
 import { Router, Request, Response } from 'express';
 import { requireAdminAuth } from '../middlewares/auth';
 import { scraperService } from '../services/scraperService';
+import { CardService } from '../services/cardService';
+import { bucket, db } from '../config/firebase';
+import { CreditCard } from '../types/creditCard';
+import { Timestamp } from 'firebase-admin/firestore';
 
 const router = Router();
+const cardService = new CardService();
 
 // Apply admin auth to all routes in this router
 router.use(requireAdminAuth);
+
+// ==================== HELPER FUNCTIONS ====================
+
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function generateSearchTerms(name: string): string[] {
+  const normalized = name.toLowerCase().trim();
+  const words = normalized.split(/\s+/).filter(w => w.length > 0);
+  const terms = new Set<string>();
+  words.forEach(word => terms.add(word));
+  terms.add(normalized.replace(/\s+/g, ' '));
+  if (words.length >= 2) {
+    for (let i = 0; i < words.length - 1; i++) {
+      terms.add(words.slice(i, i + 2).join(' '));
+    }
+  }
+  return Array.from(terms);
+}
+
+async function uploadImageFromBase64(base64Data: string, filename: string): Promise<string> {
+  const base64Content = base64Data.replace(/^data:image\/\w+;base64,/, '');
+  const buffer = Buffer.from(base64Content, 'base64');
+  const storagePath = `credit-cards/images/${filename}`;
+  const file = bucket.file(storagePath);
+  await file.save(buffer, {
+    metadata: { cacheControl: 'public, max-age=31536000', contentType: 'image/png' },
+  });
+  await file.makePublic();
+  return `https://storage.googleapis.com/${bucket.name}/${storagePath}`;
+}
+
+async function deleteImageFromStorage(imageUrl: string): Promise<void> {
+  if (!imageUrl || !imageUrl.includes('storage.googleapis.com')) return;
+  try {
+    const urlParts = imageUrl.split('/');
+    const bucketIndex = urlParts.findIndex(p => p === bucket.name);
+    if (bucketIndex !== -1) {
+      const storagePath = urlParts.slice(bucketIndex + 1).join('/');
+      await bucket.file(storagePath).delete();
+    }
+  } catch (error) {
+    console.warn('Failed to delete image from storage:', error);
+  }
+}
+
+// ==================== CARD CRUD ENDPOINTS ====================
+
+// POST /api/admin/cards - Create a new card
+router.post('/cards', async (req: Request, res: Response) => {
+  try {
+    const cardData = req.body;
+    if (!cardData.name) {
+      return res.status(400).json({ error: 'Card name is required' });
+    }
+
+    const slug = cardData.slug || generateSlug(cardData.name);
+    const searchTerms = generateSearchTerms(cardData.name);
+
+    let imageUrl = cardData.imageUrl || '';
+    let imageFilename = cardData.imageFilename || '';
+
+    if (cardData.imageBase64 || cardData.imageData) {
+      const base64 = cardData.imageBase64 || cardData.imageData;
+      const filename = `${slug}-${Date.now()}.png`;
+      imageUrl = await uploadImageFromBase64(base64, filename);
+      imageFilename = filename;
+    }
+
+    const card: Omit<CreditCard, 'id' | 'createdAt' | 'updatedAt'> = {
+      name: cardData.name,
+      slug,
+      annualFee: cardData.annualFee ?? 0,
+      annualFeeText: cardData.annualFeeText || (cardData.annualFee === 0 ? '$0' : `$${cardData.annualFee}`),
+      apr: {
+        introApr: cardData.apr?.introApr ?? null,
+        regularApr: cardData.apr?.regularApr ?? 'Variable',
+      },
+      rewards: {
+        rate: cardData.rewards?.rate ?? null,
+        bonus: cardData.rewards?.bonus ?? null,
+        type: cardData.rewards?.type ?? null,
+      },
+      ratings: {
+        overall: cardData.ratings?.overall ?? null,
+        fees: cardData.ratings?.fees ?? null,
+        rewards: cardData.ratings?.rewards ?? null,
+        cost: cardData.ratings?.cost ?? null,
+      },
+      pros: cardData.pros || [],
+      cons: cardData.cons || [],
+      creditRequired: cardData.creditRequired || 'Not specified',
+      country: cardData.country || 'USA',
+      countryCode: cardData.countryCode || 'US',
+      currency: cardData.currency || 'USD',
+      currencySymbol: cardData.currencySymbol || '$',
+      imageUrl,
+      imageFilename,
+      searchTerms,
+    };
+
+    const cardId = await cardService.createCard(card);
+    const createdCard = await cardService.getCardById(cardId);
+
+    res.status(201).json({ data: createdCard, message: 'Card created successfully' });
+  } catch (error) {
+    console.error('Error creating card:', error);
+    res.status(500).json({ error: 'Failed to create card' });
+  }
+});
+
+// PUT /api/admin/cards/:id - Update a card
+router.put('/cards/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const existingCard = await cardService.getCardById(id);
+    if (!existingCard) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+
+    if (updates.imageBase64 || updates.imageData) {
+      const base64 = updates.imageBase64 || updates.imageData;
+      const slug = updates.slug || existingCard.slug;
+      const filename = `${slug}-${Date.now()}.png`;
+      updates.imageUrl = await uploadImageFromBase64(base64, filename);
+      updates.imageFilename = filename;
+      delete updates.imageBase64;
+      delete updates.imageData;
+    }
+
+    if (updates.name && updates.name !== existingCard.name) {
+      updates.searchTerms = generateSearchTerms(updates.name);
+      if (!updates.slug) updates.slug = generateSlug(updates.name);
+    }
+
+    const updatedData = {
+      ...existingCard,
+      ...updates,
+      apr: { ...existingCard.apr, ...(updates.apr || {}) },
+      rewards: { ...existingCard.rewards, ...(updates.rewards || {}) },
+      ratings: { ...existingCard.ratings, ...(updates.ratings || {}) },
+      updatedAt: Timestamp.now(),
+    };
+
+    delete updatedData.id;
+    delete updatedData.createdAt;
+
+    await cardService.createCardWithId(id, updatedData);
+    const updatedCard = await cardService.getCardById(id);
+
+    res.json({ data: updatedCard, message: 'Card updated successfully' });
+  } catch (error) {
+    console.error('Error updating card:', error);
+    res.status(500).json({ error: 'Failed to update card' });
+  }
+});
+
+// DELETE /api/admin/cards/:id - Delete a card
+router.delete('/cards/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const existingCard = await cardService.getCardById(id);
+    if (!existingCard) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+
+    if (existingCard.imageUrl) {
+      await deleteImageFromStorage(existingCard.imageUrl);
+    }
+
+    await db.collection('credit_cards').doc(id).delete();
+
+    res.json({ message: 'Card deleted successfully', deletedId: id });
+  } catch (error) {
+    console.error('Error deleting card:', error);
+    res.status(500).json({ error: 'Failed to delete card' });
+  }
+});
+
+// POST /api/admin/cards/:id/refresh - Refresh card from WalletHub
+router.post('/cards/:id/refresh', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const existingCard = await cardService.getCardById(id);
+    if (!existingCard) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+
+    const isAvailable = await scraperService.isAvailable();
+    if (!isAvailable) {
+      return res.status(503).json({
+        error: 'Scraper service unavailable',
+        message: 'The scraper service is not responding. Please try again later.',
+      });
+    }
+
+    const result = await scraperService.refreshCard(id);
+    if (!result) {
+      return res.status(502).json({
+        error: 'Refresh failed',
+        message: 'Could not refresh card data from WalletHub',
+      });
+    }
+
+    res.json({
+      data: result.card,
+      changes: result.changes,
+      message: result.changes.length > 0
+        ? `Updated ${result.changes.length} field(s): ${result.changes.join(', ')}`
+        : 'No changes detected',
+    });
+  } catch (error) {
+    console.error('Error refreshing card:', error);
+    res.status(500).json({ error: 'Failed to refresh card' });
+  }
+});
 
 // ==================== SCRAPER INTEGRATION ENDPOINTS ====================
 
