@@ -24,6 +24,7 @@ jobs:
           cache-dependency-path: |
             backend/package-lock.json
             frontend/package-lock.json
+            scraper/package-lock.json
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -31,6 +32,14 @@ jobs:
 
       - name: Build backend
         working-directory: ./backend
+        run: npm run build
+
+      - name: Install scraper dependencies
+        working-directory: ./scraper
+        run: npm ci
+
+      - name: Build scraper
+        working-directory: ./scraper
         run: npm run build
 
       - name: Install frontend dependencies
@@ -58,6 +67,7 @@ jobs:
           cache-dependency-path: |
             backend/package-lock.json
             frontend/package-lock.json
+            scraper/package-lock.json
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -65,6 +75,14 @@ jobs:
 
       - name: Build backend
         working-directory: ./backend
+        run: npm run build
+
+      - name: Install scraper dependencies
+        working-directory: ./scraper
+        run: npm ci
+
+      - name: Build scraper
+        working-directory: ./scraper
         run: npm run build
 
       - name: Install frontend dependencies
