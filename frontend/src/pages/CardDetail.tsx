@@ -3,12 +3,16 @@ import { useParams, Link } from 'react-router-dom';
 import { cardApi } from '../services/api';
 import type { CreditCard } from '../types/creditCard';
 import { RatingStars } from '../components/RatingStars';
+import { useAuth } from '../contexts/AuthContext';
 
 export function CardDetail() {
   const { id } = useParams<{ id: string }>();
+  const { user, isAdmin } = useAuth();
   const [card, setCard] = useState<CreditCard | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshResult, setRefreshResult] = useState<{ success: boolean; message: string } | null>(null);
 
   useEffect(() => {
     async function fetchCard() {
@@ -30,6 +34,34 @@ export function CardDetail() {
 
     fetchCard();
   }, [id]);
+
+  const handleRefresh = async () => {
+    if (!id || !user) return;
+
+    setRefreshing(true);
+    setRefreshResult(null);
+
+    try {
+      const token = await user.getIdToken();
+      const result = await cardApi.refreshCard(id, token);
+      setCard(result.data);
+      setRefreshResult({
+        success: true,
+        message: result.changes.length > 0
+          ? `Updated: ${result.changes.join(', ')}`
+          : 'Card is already up to date',
+      });
+    } catch (err) {
+      setRefreshResult({
+        success: false,
+        message: 'Failed to refresh card data',
+      });
+      console.error(err);
+    } finally {
+      setRefreshing(false);
+      setTimeout(() => setRefreshResult(null), 5000);
+    }
+  };
 
   if (loading) {
     return (
@@ -58,7 +90,7 @@ export function CardDetail() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <Link
             to="/"
             className="inline-flex items-center text-gray-600 hover:text-gray-900"
@@ -78,7 +110,56 @@ export function CardDetail() {
             </svg>
             Back to all cards
           </Link>
+
+          {isAdmin && (
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+            >
+              <svg
+                className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              {refreshing ? 'Refreshing...' : 'Refresh from WalletHub'}
+            </button>
+          )}
         </div>
+
+        {/* Refresh Result Toast */}
+        {refreshResult && (
+          <div
+            className={`max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 transition-all ${
+              refreshResult.success ? 'text-green-600' : 'text-red-600'
+            }`}
+          >
+            <div
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${
+                refreshResult.success ? 'bg-green-50' : 'bg-red-50'
+              }`}
+            >
+              {refreshResult.success ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+              {refreshResult.message}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
