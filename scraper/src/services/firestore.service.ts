@@ -78,6 +78,48 @@ export async function cardExistsBySlug(slug: string): Promise<boolean> {
 }
 
 /**
+ * Search for cards by name filtered by country
+ */
+export async function searchCardsByCountry(
+  name: string,
+  countryCode: 'US' | 'CA',
+  limit = 10
+): Promise<CreditCard[]> {
+  try {
+    // Normalize search terms
+    const searchTerms = name.toLowerCase().split(/\s+/).filter((t) => t.length > 2);
+
+    if (searchTerms.length === 0) {
+      // Return cards from the specified country if no search terms
+      const snapshot = await collection
+        .where('countryCode', '==', countryCode)
+        .limit(limit)
+        .get();
+      return snapshot.docs.map((doc) => doc.data() as CreditCard);
+    }
+
+    // Search by terms first, then filter by country
+    // Note: Firestore doesn't support combining array-contains-any with other where clauses well
+    // So we fetch more and filter in memory
+    const snapshot = await collection
+      .where('searchTerms', 'array-contains-any', searchTerms.slice(0, 10))
+      .limit(limit * 3) // Fetch more to account for filtering
+      .get();
+
+    const cards = snapshot.docs
+      .map((doc) => doc.data() as CreditCard)
+      .filter((card) => card.countryCode === countryCode)
+      .slice(0, limit);
+
+    return cards;
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    loggers.error(new Error(`Failed to search cards by country: ${errorMsg}`), { name, countryCode });
+    throw error;
+  }
+}
+
+/**
  * Create a new card
  */
 export async function createCard(card: CreditCard): Promise<CreditCard> {

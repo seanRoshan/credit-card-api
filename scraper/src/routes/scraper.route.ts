@@ -1,11 +1,15 @@
 import { Router } from 'express';
 import * as controller from '../controllers/scraper.controller';
+import * as ratehubController from '../controllers/ratehub.controller';
 import { authenticateApiKey } from '../middlewares/auth';
 import { validate } from '../middlewares/validate';
 import {
   searchQuerySchema,
   scrapeCardSchema,
+  scrapeRateHubCardSchema,
   bulkScrapeSchema,
+  bulkScrapeRateHubSchema,
+  importAllRateHubSchema,
   updateCardSchema,
   scrapeBySlugSchema,
 } from '../validations/scraper.validation';
@@ -80,6 +84,64 @@ router.post(
   authenticateApiKey,
   validate(updateCardSchema),
   controller.updateCard
+);
+
+// ================== RATEHUB CANADA ROUTES ==================
+// Note: RateHub uses blog-style category pages that list multiple cards inline.
+// There is no search functionality - use categories or direct URLs instead.
+
+/**
+ * @route   POST /v1/scrape/ratehub/card
+ * @desc    Scrape a single card from RateHub URL
+ * @access  Protected (API Key)
+ * @body    url - RateHub card URL (required)
+ * @body    forceUpdate - Re-scrape even if exists (optional, default false)
+ */
+router.post(
+  '/ratehub/card',
+  authenticateApiKey,
+  validate(scrapeRateHubCardSchema),
+  ratehubController.scrapeRateHubCard
+);
+
+/**
+ * @route   POST /v1/scrape/ratehub/bulk
+ * @desc    Bulk scrape cards from a RateHub category page
+ * @access  Protected (API Key)
+ * @body    categoryUrl - RateHub category page URL (required)
+ * @body    limit - Max cards to scrape (optional, default 50, max 100)
+ * @body    skipExisting - Skip cards already in DB (optional, default true)
+ */
+router.post(
+  '/ratehub/bulk',
+  authenticateApiKey,
+  validate(bulkScrapeRateHubSchema),
+  ratehubController.bulkScrapeRateHub
+);
+
+/**
+ * @route   GET /v1/scrape/ratehub/categories
+ * @desc    Get all available RateHub category URLs for bulk import
+ * @access  Protected (API Key)
+ */
+router.get(
+  '/ratehub/categories',
+  authenticateApiKey,
+  ratehubController.getRateHubCategories
+);
+
+/**
+ * @route   POST /v1/scrape/ratehub/import-all
+ * @desc    Import all cards from all RateHub categories
+ * @access  Protected (API Key)
+ * @body    limitPerCategory - Max cards per category (optional, default 30)
+ * @body    skipExisting - Skip cards already in DB (optional, default true)
+ */
+router.post(
+  '/ratehub/import-all',
+  authenticateApiKey,
+  validate(importAllRateHubSchema),
+  ratehubController.importAllRateHub
 );
 
 export default router;

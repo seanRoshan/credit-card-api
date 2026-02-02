@@ -24,10 +24,12 @@ export function Home() {
     noAnnualFee: boolean;
     sort: 'name' | 'annualFee' | 'rating';
     order: 'asc' | 'desc';
+    country: 'all' | 'US' | 'CA';
   }>({
     noAnnualFee: false,
     sort: 'name',
     order: 'asc',
+    country: 'all',
   });
 
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
@@ -40,8 +42,13 @@ export function Home() {
       if (searchQuery.trim()) {
         // Use search endpoint
         const result = await cardApi.searchCards(searchQuery);
-        setCards(result.data);
-        setTotalItems(result.data.length);
+        // Apply country filter client-side for search results
+        let filteredData = result.data;
+        if (filters.country !== 'all') {
+          filteredData = result.data.filter(card => card.countryCode === filters.country);
+        }
+        setCards(filteredData);
+        setTotalItems(filteredData.length);
       } else {
         // Use list endpoint with filters
         const params: GetCardsParams = {
@@ -50,6 +57,7 @@ export function Home() {
           sort: filters.sort,
           order: filters.order,
           noAnnualFee: filters.noAnnualFee || undefined,
+          country: filters.country !== 'all' ? filters.country : undefined,
         };
 
         const result = await cardApi.getCards(params);

@@ -8,6 +8,14 @@ const walletHubUrlSchema = z
     message: 'URL must be a WalletHub URL',
   });
 
+// URL validation helper for RateHub URLs
+const rateHubUrlSchema = z
+  .string()
+  .url('Must be a valid URL')
+  .refine((url) => url.includes('ratehub.ca'), {
+    message: 'URL must be a RateHub URL',
+  });
+
 /**
  * Schema for GET /v1/scrape/search
  * Search WalletHub for credit cards by name
@@ -16,7 +24,7 @@ export const searchQuerySchema = z.object({
   query: z.object({
     q: z
       .string()
-      .min(3, 'Search query must be at least 3 characters')
+      .min(2, 'Search query must be at least 2 characters')
       .max(100, 'Search query must be at most 100 characters'),
     limit: z
       .string()
@@ -41,6 +49,17 @@ export const scrapeCardSchema = z.object({
 });
 
 /**
+ * Schema for POST /v1/scrape/ratehub/card
+ * Scrape a single card from RateHub URL
+ */
+export const scrapeRateHubCardSchema = z.object({
+  body: z.object({
+    url: rateHubUrlSchema,
+    forceUpdate: z.boolean().optional().default(false),
+  }),
+});
+
+/**
  * Schema for POST /v1/scrape/bulk
  * Bulk scrape cards from a WalletHub category page
  */
@@ -54,6 +73,41 @@ export const bulkScrapeSchema = z.object({
       .max(100, 'Limit must be at most 100')
       .optional()
       .default(20),
+    skipExisting: z.boolean().optional().default(true),
+  }),
+});
+
+/**
+ * Schema for POST /v1/scrape/ratehub/bulk
+ * Bulk scrape cards from a RateHub category page
+ */
+export const bulkScrapeRateHubSchema = z.object({
+  body: z.object({
+    categoryUrl: rateHubUrlSchema,
+    limit: z
+      .number()
+      .int()
+      .min(1, 'Limit must be at least 1')
+      .max(100, 'Limit must be at most 100')
+      .optional()
+      .default(50),
+    skipExisting: z.boolean().optional().default(true),
+  }),
+});
+
+/**
+ * Schema for POST /v1/scrape/ratehub/import-all
+ * Import all cards from all RateHub categories
+ */
+export const importAllRateHubSchema = z.object({
+  body: z.object({
+    limitPerCategory: z
+      .number()
+      .int()
+      .min(1, 'Limit must be at least 1')
+      .max(100, 'Limit must be at most 100')
+      .optional()
+      .default(30),
     skipExisting: z.boolean().optional().default(true),
   }),
 });

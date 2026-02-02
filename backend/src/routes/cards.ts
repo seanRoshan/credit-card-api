@@ -19,6 +19,7 @@ router.get('/', async (req: Request, res: Response) => {
       order: (req.query.order as 'asc' | 'desc') || 'asc',
       noAnnualFee: req.query.noAnnualFee === 'true',
       creditRequired: req.query.creditRequired as string,
+      country: req.query.country as 'US' | 'CA' | undefined,
     };
 
     const result = await cardService.getCards(params);

@@ -15,6 +15,31 @@
         { "fieldPath": "annualFee", "order": "ASCENDING" },
         { "fieldPath": "ratings.overall", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "credit_cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "countryCode", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "credit_cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "countryCode", "order": "ASCENDING" },
+        { "fieldPath": "annualFee", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "credit_cards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "countryCode", "order": "ASCENDING" },
+        { "fieldPath": "ratings.overall", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

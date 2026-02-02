@@ -23,13 +23,35 @@ export const config = {
     ],
   },
 
-  // WalletHub scraping settings
+  // WalletHub scraping settings (USA)
   wallethub: {
     baseUrl: 'https://wallethub.com',
     searchUrl: 'https://wallethub.com/credit-cards/',
     requestDelay: 2000, // 2 seconds between requests
     maxRetries: 3,
     timeout: 30000, // 30 seconds
+  },
+
+  // RateHub scraping settings (Canada)
+  ratehub: {
+    baseUrl: 'https://www.ratehub.ca',
+    creditCardsUrl: 'https://www.ratehub.ca/credit-cards',
+    categories: {
+      cashback: 'https://www.ratehub.ca/credit-cards/cash-back',
+      travel: 'https://www.ratehub.ca/credit-cards/travel',
+      rewards: 'https://www.ratehub.ca/credit-cards/rewards',
+      lowInterest: 'https://www.ratehub.ca/credit-cards/low-interest',
+      noFee: 'https://www.ratehub.ca/credit-cards/no-annual-fee',
+      business: 'https://www.ratehub.ca/credit-cards/business',
+      student: 'https://www.ratehub.ca/credit-cards/student',
+      secured: 'https://www.ratehub.ca/credit-cards/secured',
+      balanceTransfer: 'https://www.ratehub.ca/credit-cards/balance-transfer',
+      airmiles: 'https://www.ratehub.ca/credit-cards/airmiles',
+      aeroplan: 'https://www.ratehub.ca/credit-cards/aeroplan',
+    },
+    requestDelay: 2500, // 2.5 seconds between requests (be gentle)
+    maxRetries: 3,
+    timeout: 45000, // 45 seconds (Next.js apps can be slow)
   },
 
   // Rate limiting

@@ -1,5 +1,7 @@
-import { ScrapedCardData, CreditCard } from '../types';
+import { ScrapedCardData, CreditCard, RateHubScrapedData } from '../types';
 import { Timestamp } from 'firebase-admin/firestore';
+
+export type Country = 'US' | 'CA';
 
 /**
  * Generate a unique ID for a card based on its slug
@@ -56,10 +58,72 @@ export function generateSearchTerms(card: ScrapedCardData): string[] {
     terms.add('free');
   }
 
-  // Add issuer names if detectable
-  const issuerKeywords = ['chase', 'amex', 'citi', 'capital one', 'discover', 'wells fargo', 'bank of america'];
+  // Add issuer names if detectable (US issuers)
+  const usIssuerKeywords = ['chase', 'amex', 'citi', 'capital one', 'discover', 'wells fargo', 'bank of america'];
+  // Canadian issuers
+  const caIssuerKeywords = ['td', 'bmo', 'cibc', 'rbc', 'scotiabank', 'tangerine', 'simplii', 'mbna', 'american express'];
+  const allIssuers = [...usIssuerKeywords, ...caIssuerKeywords];
+
   const lowerName = card.name.toLowerCase();
-  issuerKeywords.forEach((issuer) => {
+  allIssuers.forEach((issuer) => {
+    if (lowerName.includes(issuer)) {
+      terms.add(issuer);
+    }
+  });
+
+  return Array.from(terms);
+}
+
+/**
+ * Generate search terms for a RateHub card
+ */
+export function generateSearchTermsFromRateHub(card: RateHubScrapedData): string[] {
+  const terms = new Set<string>();
+
+  // Add name words
+  card.name
+    .toLowerCase()
+    .split(/\s+/)
+    .forEach((word) => {
+      if (word.length > 2) terms.add(word);
+    });
+
+  // Add common variations (remove dots, hyphens)
+  const nameVariations = card.name.toLowerCase().replace(/\./g, '').replace(/-/g, ' ');
+  nameVariations.split(/\s+/).forEach((word) => {
+    if (word.length > 2) terms.add(word);
+  });
+
+  // Add slug words
+  card.slug.split('-').forEach((word) => {
+    if (word.length > 2) terms.add(word);
+  });
+
+  // Add rewards type
+  if (card.rewardsType) {
+    terms.add(card.rewardsType);
+  }
+
+  // Add provider
+  if (card.provider) {
+    terms.add(card.provider.toLowerCase());
+  }
+
+  // Add Canada-specific terms
+  terms.add('canada');
+  terms.add('canadian');
+  terms.add('cad');
+
+  // Add feature keywords
+  if (card.annualFee === 0) {
+    terms.add('no annual fee');
+    terms.add('free');
+  }
+
+  // Add Canadian issuer names if detectable
+  const caIssuerKeywords = ['td', 'bmo', 'cibc', 'rbc', 'scotiabank', 'tangerine', 'simplii', 'mbna', 'american express', 'amex'];
+  const lowerName = card.name.toLowerCase();
+  caIssuerKeywords.forEach((issuer) => {
     if (lowerName.includes(issuer)) {
       terms.add(issuer);
     }
@@ -70,6 +134,7 @@ export function generateSearchTerms(card: ScrapedCardData): string[] {
 
 /**
  * Transform scraped data into the CreditCard format for Firestore
+ * For WalletHub (USA)
  */
 export function transformToCard(
   scraped: ScrapedCardData,
@@ -138,6 +203,80 @@ export function transformToCard(
 
     // Search
     searchTerms: generateSearchTerms(scraped),
+  };
+}
+
+/**
+ * Transform RateHub scraped data into the CreditCard format for Firestore
+ * For RateHub (Canada)
+ */
+export function transformRateHubToCard(
+  scraped: RateHubScrapedData,
+  imageUrl: string,
+  existingId?: string
+): CreditCard {
+  const now = Timestamp.now();
+  const id = existingId || generateCardId(scraped.slug);
+
+  // Extract image filename from URL
+  const imageFilename = imageUrl
+    ? imageUrl.split('/').pop() || `${scraped.slug}.webp`
+    : '';
+
+  return {
+    id,
+    name: scraped.name,
+    slug: scraped.slug,
+
+    // Fees
+    annualFee: scraped.annualFee,
+    annualFeeText: scraped.annualFeeText,
+
+    // APR
+    apr: {
+      introApr: scraped.introApr,
+      regularApr: scraped.regularApr,
+    },
+
+    // Rewards
+    rewards: {
+      rate: scraped.rewardsRate,
+      bonus: scraped.rewardsBonus,
+      type: scraped.rewardsType,
+    },
+
+    // Ratings
+    ratings: {
+      overall: scraped.overallRating,
+      fees: null,
+      rewards: null,
+      cost: null,
+    },
+
+    // Content
+    pros: scraped.pros,
+    cons: scraped.cons,
+    creditRequired: scraped.creditRequired,
+
+    // Location (Canada for RateHub)
+    country: 'Canada',
+    countryCode: 'CA',
+    currency: 'CAD',
+    currencySymbol: '$',
+
+    // Image
+    imageUrl,
+    imageFilename,
+
+    // Source tracking
+    sourceUrl: scraped.sourceUrl,
+
+    // Metadata
+    createdAt: now,
+    updatedAt: now,
+
+    // Search
+    searchTerms: generateSearchTermsFromRateHub(scraped),
   };
 }
 

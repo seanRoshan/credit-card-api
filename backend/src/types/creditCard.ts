@@ -91,4 +91,5 @@ export interface CardSearchParams {
   order?: 'asc' | 'desc';
   noAnnualFee?: boolean;
   creditRequired?: string;
+  country?: 'US' | 'CA';
 }

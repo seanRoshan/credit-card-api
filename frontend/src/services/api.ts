@@ -9,6 +9,14 @@ export interface WalletHubResult {
   imageUrl: string | null;
 }
 
+export interface RateHubCategory {
+  key: string;
+  name: string;
+  url: string;
+}
+
+export type ImportSource = 'wallethub' | 'ratehub';
+
 export interface CardFormData {
   name: string;
   slug?: string;
@@ -38,6 +46,7 @@ export interface GetCardsParams {
   order?: 'asc' | 'desc';
   noAnnualFee?: boolean;
   creditRequired?: string;
+  country?: 'US' | 'CA';
 }
 
 // Helper function to create headers with auth token
@@ -58,6 +67,7 @@ export const cardApi = {
     if (params.order) searchParams.set('order', params.order);
     if (params.noAnnualFee) searchParams.set('noAnnualFee', 'true');
     if (params.creditRequired) searchParams.set('creditRequired', params.creditRequired);
+    if (params.country) searchParams.set('country', params.country);
 
     const response = await fetch(`${API_BASE}/cards?${searchParams}`);
     if (!response.ok) {
@@ -161,6 +171,68 @@ export const cardApi = {
     });
     if (!response.ok) {
       throw new Error('Failed to import from WalletHub');
+    }
+    return response.json();
+  },
+
+  // Admin - RateHub Canada scraper (category-based, no search)
+  async importFromRateHub(url: string, token: string): Promise<{ data: CreditCard }> {
+    const response = await fetch(`${API_BASE}/admin/scraper/ratehub/import`, {
+      method: 'POST',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify({ url }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to import from RateHub');
+    }
+    return response.json();
+  },
+
+  async bulkImportFromRateHub(categoryUrl: string, limit: number, skipExisting: boolean, token: string): Promise<{
+    data: { scraped: number; skipped: number; failed: number; cards: CreditCard[] };
+    message: string;
+  }> {
+    const response = await fetch(`${API_BASE}/admin/scraper/ratehub/bulk`, {
+      method: 'POST',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify({ categoryUrl, limit, skipExisting }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to bulk import from RateHub');
+    }
+    return response.json();
+  },
+
+  async getRateHubCategories(token: string): Promise<{
+    data: RateHubCategory[];
+    count: number;
+  }> {
+    const response = await fetch(`${API_BASE}/admin/scraper/ratehub/categories`, {
+      method: 'GET',
+      headers: getAuthHeaders(token),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get RateHub categories');
+    }
+    return response.json();
+  },
+
+  async importAllFromRateHub(limitPerCategory: number, skipExisting: boolean, token: string): Promise<{
+    data: {
+      totalScraped: number;
+      totalSkipped: number;
+      totalFailed: number;
+      cards: CreditCard[];
+    };
+    message: string;
+  }> {
+    const response = await fetch(`${API_BASE}/admin/scraper/ratehub/import-all`, {
+      method: 'POST',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify({ limitPerCategory, skipExisting }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to import all from RateHub');
     }
     return response.json();
   },

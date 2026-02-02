@@ -19,6 +19,35 @@ interface WalletHubSearchResult {
   rating: number | null;
 }
 
+interface BulkScrapeResponse {
+  success: boolean;
+  data?: {
+    scraped: number;
+    skipped: number;
+    failed: number;
+    cards: CreditCard[];
+    errors?: string[];
+  };
+  error?: string;
+  timestamp: string;
+}
+
+interface RateHubCategory {
+  key: string;
+  name: string;
+  url: string;
+}
+
+interface RateHubCategoriesResponse {
+  success: boolean;
+  data?: {
+    categories: RateHubCategory[];
+    total: number;
+  };
+  error?: string;
+  timestamp: string;
+}
+
 interface ScrapeCardResponse {
   success: boolean;
   data?: {
@@ -167,6 +196,106 @@ export class ScraperService {
       return response.data?.success === true;
     } catch {
       return false;
+    }
+  }
+
+  // ================== RATEHUB CANADA METHODS ==================
+  // Note: RateHub doesn't have search. Use categories or direct URL import.
+
+  /**
+   * Scrape cards from a RateHub URL (blog page or direct card page)
+   */
+  async scrapeRateHubCard(url: string, forceUpdate = false): Promise<CreditCard | null> {
+    try {
+      const response = await this.client.post<ScrapeCardResponse>(
+        '/v1/scrape/ratehub/card',
+        { url, forceUpdate }
+      );
+
+      if (response.data.success && response.data.data) {
+        return response.data.data.card;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error scraping RateHub card:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Bulk scrape cards from a RateHub category page
+   */
+  async bulkScrapeRateHub(
+    categoryUrl: string,
+    limit = 50,
+    skipExisting = true
+  ): Promise<{ scraped: number; skipped: number; failed: number; cards: CreditCard[] } | null> {
+    try {
+      const response = await this.client.post<BulkScrapeResponse>(
+        '/v1/scrape/ratehub/bulk',
+        { categoryUrl, limit, skipExisting },
+        { timeout: 300000 } // 5 minutes for bulk operations
+      );
+
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error bulk scraping RateHub:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get all RateHub category URLs
+   */
+  async getRateHubCategories(): Promise<RateHubCategory[] | null> {
+    try {
+      const response = await this.client.get<RateHubCategoriesResponse>(
+        '/v1/scrape/ratehub/categories'
+      );
+
+      if (response.data.success && response.data.data) {
+        return response.data.data.categories;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error getting RateHub categories:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Import all cards from all RateHub categories
+   */
+  async importAllRateHub(
+    limitPerCategory = 30,
+    skipExisting = true
+  ): Promise<{
+    totalScraped: number;
+    totalSkipped: number;
+    totalFailed: number;
+    cards: CreditCard[];
+  } | null> {
+    try {
+      const response = await this.client.post(
+        '/v1/scrape/ratehub/import-all',
+        { limitPerCategory, skipExisting },
+        { timeout: 600000 } // 10 minutes for full import
+      );
+
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error importing all from RateHub:', error);
+      return null;
     }
   }
 }

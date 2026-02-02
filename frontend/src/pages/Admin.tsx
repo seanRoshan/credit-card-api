@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { CardForm, type CardFormData } from '../components/admin/CardForm';
-import { WalletHubScraper } from '../components/admin/WalletHubScraper';
+import { CardImporter } from '../components/admin/CardImporter';
 import { CardTable } from '../components/admin/CardTable';
 import { cardApi } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -37,7 +37,6 @@ export function Admin() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
   const [editingCard, setEditingCard] = useState<CreditCard | null>(null);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [stats, setStats] = useState<Stats>({
@@ -131,11 +130,13 @@ export function Admin() {
     setIsSubmitting(true);
     try {
       const token = await getToken();
+      // Determine country-specific fields
+      const isCanadian = data.country === 'CA';
       const cardData = {
         name: data.name,
         slug: data.slug,
         annualFee: data.annualFee,
-        annualFeeText: data.annualFee === 0 ? '$0' : `$${data.annualFee}`,
+        annualFeeText: data.annualFee === 0 ? (isCanadian ? 'CA$0' : '$0') : (isCanadian ? `CA$${data.annualFee}` : `$${data.annualFee}`),
         apr: {
           introApr: data.introApr || null,
           regularApr: data.regularApr,
@@ -155,6 +156,11 @@ export function Admin() {
         cons: data.cons.split('\n').filter((c: string) => c.trim()),
         creditRequired: data.creditRequired || 'N/A',
         imageData: data.imageData || undefined,
+        // Country fields
+        country: isCanadian ? 'Canada' : 'USA',
+        countryCode: data.country || 'US',
+        currency: isCanadian ? 'CAD' : 'USD',
+        currencySymbol: isCanadian ? 'CA$' : '$',
       };
 
       if (editingCard) {
@@ -175,21 +181,9 @@ export function Admin() {
     }
   };
 
-  const handleImport = async (url: string) => {
-    setIsImporting(true);
-    try {
-      const token = await getToken();
-      await cardApi.importFromWalletHub(url, token);
-      showNotification('success', 'Card imported successfully!');
-      fetchCards();
-      fetchStats();
-    } catch (err) {
-      showNotification('error', 'Failed to import card');
-      console.error(err);
-      throw err;
-    } finally {
-      setIsImporting(false);
-    }
+  const handleImportComplete = () => {
+    fetchCards();
+    fetchStats();
   };
 
   const handleEdit = (card: CreditCard) => {
@@ -535,12 +529,9 @@ export function Admin() {
               </div>
             )}
 
-            {/* Scrape Tab */}
+            {/* Import Tab */}
             {activeTab === 'scrape' && (
-              <WalletHubScraper
-                onImport={handleImport}
-                isImporting={isImporting}
-              />
+              <CardImporter onImportComplete={handleImportComplete} />
             )}
 
             {/* API Keys Tab */}

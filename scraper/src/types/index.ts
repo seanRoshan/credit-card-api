@@ -88,6 +88,37 @@ export interface WalletHubSearchResult {
   rating: number | null;
 }
 
+// RateHub Canada search result
+export interface RateHubSearchResult {
+  name: string;
+  url: string;
+  imageUrl: string | null;
+  annualFeeText: string;
+  rewardsRate: string | null;
+  provider: string | null;
+}
+
+// RateHub scraped card data
+export interface RateHubScrapedData {
+  name: string;
+  slug: string;
+  annualFee: number;
+  annualFeeText: string;
+  introApr: string | null;
+  regularApr: string;
+  rewardsRate: string | null;
+  rewardsBonus: string | null;
+  rewardsType: string | null;
+  overallRating: number | null;
+  pros: string[];
+  cons: string[];
+  creditRequired: string;
+  imageUrl: string | null;
+  sourceUrl: string;
+  provider: string | null;
+  features: string[];
+}
+
 // API Request types
 export interface SearchQuery {
   q: string;

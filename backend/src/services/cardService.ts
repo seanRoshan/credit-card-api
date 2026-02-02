@@ -83,25 +83,34 @@ export class CardService {
       order = 'asc',
       noAnnualFee,
       creditRequired,
+      country,
     } = params;
 
     let query: FirebaseFirestore.Query = this.collection;
+    let countQuery: FirebaseFirestore.Query = this.collection;
 
     // Apply filters
     if (noAnnualFee === true) {
       query = query.where('annualFee', '==', 0);
+      countQuery = countQuery.where('annualFee', '==', 0);
     }
 
     if (creditRequired) {
       query = query.where('creditRequired', '==', creditRequired);
+      countQuery = countQuery.where('creditRequired', '==', creditRequired);
+    }
+
+    if (country) {
+      query = query.where('countryCode', '==', country);
+      countQuery = countQuery.where('countryCode', '==', country);
     }
 
     // Apply sorting
     const sortField = this.getSortField(sort);
     query = query.orderBy(sortField, order);
 
-    // Get total count (expensive, consider caching)
-    const totalSnapshot = await this.collection.count().get();
+    // Get total count with filters applied
+    const totalSnapshot = await countQuery.count().get();
     const total = totalSnapshot.data().count;
 
     // Apply pagination

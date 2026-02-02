@@ -435,6 +435,163 @@ router.post('/scraper/import-by-slug', async (req: Request, res: Response) => {
   }
 });
 
+// ==================== RATEHUB (CANADA) SCRAPER ENDPOINTS ====================
+// Note: RateHub uses blog-style category pages. No search feature available.
+
+// POST /api/admin/scraper/ratehub/import - Import card(s) from RateHub URL
+router.post('/scraper/ratehub/import', async (req: Request, res: Response) => {
+  try {
+    const { url, forceUpdate = false } = req.body;
+
+    if (!url) {
+      return res.status(400).json({
+        error: 'URL is required',
+        message: 'Provide a RateHub card URL to import',
+      });
+    }
+
+    if (!url.includes('ratehub.ca')) {
+      return res.status(400).json({
+        error: 'Invalid URL',
+        message: 'URL must be a RateHub credit card page',
+      });
+    }
+
+    const isAvailable = await scraperService.isAvailable();
+    if (!isAvailable) {
+      return res.status(503).json({
+        error: 'Scraper service unavailable',
+        message: 'The scraper service is not responding. Please try again later.',
+      });
+    }
+
+    const card = await scraperService.scrapeRateHubCard(url, forceUpdate);
+
+    if (!card) {
+      return res.status(502).json({
+        error: 'Import failed',
+        message: 'Could not extract card data from the provided URL. The page structure may have changed.',
+      });
+    }
+
+    res.status(201).json({
+      data: card,
+      message: 'Card imported successfully from RateHub',
+    });
+  } catch (error) {
+    console.error('Error importing card from RateHub:', error);
+    res.status(500).json({ error: 'Failed to import card' });
+  }
+});
+
+// POST /api/admin/scraper/ratehub/bulk - Bulk import from RateHub category
+router.post('/scraper/ratehub/bulk', async (req: Request, res: Response) => {
+  try {
+    const { categoryUrl, limit = 50, skipExisting = true } = req.body;
+
+    if (!categoryUrl) {
+      return res.status(400).json({
+        error: 'Category URL is required',
+        message: 'Provide a RateHub category URL to bulk import',
+      });
+    }
+
+    if (!categoryUrl.includes('ratehub.ca')) {
+      return res.status(400).json({
+        error: 'Invalid URL',
+        message: 'URL must be a RateHub category page',
+      });
+    }
+
+    const isAvailable = await scraperService.isAvailable();
+    if (!isAvailable) {
+      return res.status(503).json({
+        error: 'Scraper service unavailable',
+        message: 'The scraper service is not responding. Please try again later.',
+      });
+    }
+
+    const result = await scraperService.bulkScrapeRateHub(categoryUrl, limit, skipExisting);
+
+    if (!result) {
+      return res.status(502).json({
+        error: 'Bulk import failed',
+        message: 'Could not import cards from the category page.',
+      });
+    }
+
+    res.json({
+      data: result,
+      message: `Imported ${result.scraped} cards, skipped ${result.skipped}, failed ${result.failed}`,
+    });
+  } catch (error) {
+    console.error('Error bulk importing from RateHub:', error);
+    res.status(500).json({ error: 'Failed to bulk import' });
+  }
+});
+
+// GET /api/admin/scraper/ratehub/categories - Get all RateHub category URLs
+router.get('/scraper/ratehub/categories', async (req: Request, res: Response) => {
+  try {
+    const isAvailable = await scraperService.isAvailable();
+    if (!isAvailable) {
+      return res.status(503).json({
+        error: 'Scraper service unavailable',
+        message: 'The scraper service is not responding. Please try again later.',
+      });
+    }
+
+    const categories = await scraperService.getRateHubCategories();
+
+    if (!categories) {
+      return res.status(502).json({
+        error: 'Failed to get categories',
+        message: 'Could not retrieve RateHub category list.',
+      });
+    }
+
+    res.json({
+      data: categories,
+      count: Object.keys(categories).length,
+    });
+  } catch (error) {
+    console.error('Error getting RateHub categories:', error);
+    res.status(500).json({ error: 'Failed to get categories' });
+  }
+});
+
+// POST /api/admin/scraper/ratehub/import-all - Import all cards from all RateHub categories
+router.post('/scraper/ratehub/import-all', async (req: Request, res: Response) => {
+  try {
+    const { limitPerCategory = 30, skipExisting = true } = req.body;
+
+    const isAvailable = await scraperService.isAvailable();
+    if (!isAvailable) {
+      return res.status(503).json({
+        error: 'Scraper service unavailable',
+        message: 'The scraper service is not responding. Please try again later.',
+      });
+    }
+
+    const result = await scraperService.importAllRateHub(limitPerCategory, skipExisting);
+
+    if (!result) {
+      return res.status(502).json({
+        error: 'Import all failed',
+        message: 'Could not complete the full import from RateHub.',
+      });
+    }
+
+    res.json({
+      data: result,
+      message: `Total: ${result.totalScraped} imported, ${result.totalSkipped} skipped, ${result.totalFailed} failed`,
+    });
+  } catch (error) {
+    console.error('Error importing all from RateHub:', error);
+    res.status(500).json({ error: 'Failed to import all' });
+  }
+});
+
 // ==================== API KEY MANAGEMENT ENDPOINTS ====================
 
 // POST /api/admin/api-keys - Create a new API key

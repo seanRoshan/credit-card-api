@@ -167,6 +167,7 @@ interface CardFormData {
   pros: string;
   cons: string;
   imageData: string | null;
+  country: 'US' | 'CA';
 }
 
 interface CardFormProps {
@@ -199,6 +200,7 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
     pros: '',
     cons: '',
     imageData: null,
+    country: 'US',
   });
 
   const [slugEdited, setSlugEdited] = useState(false);
@@ -220,6 +222,7 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
         pros: initialData.pros.join('\n'),
         cons: initialData.cons.join('\n'),
         imageData: initialData.imageUrl || null,
+        country: (initialData.countryCode as 'US' | 'CA') || 'US',
       });
       setSlugEdited(true);
     }
@@ -321,6 +324,58 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Country Selection */}
+      <div className="bg-gradient-to-r from-sky-50 to-blue-50 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <svg className="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Country / Region
+        </h3>
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={() => setFormData(prev => ({ ...prev, country: 'US' }))}
+            className={`flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl border-2 transition-all duration-200 ${
+              formData.country === 'US'
+                ? 'border-sky-500 bg-sky-50 text-sky-700 shadow-lg shadow-sky-500/20'
+                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            <span className="text-2xl">🇺🇸</span>
+            <div className="text-left">
+              <div className="font-semibold">United States</div>
+              <div className="text-xs opacity-75">USD ($)</div>
+            </div>
+            {formData.country === 'US' && (
+              <svg className="w-5 h-5 ml-auto text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setFormData(prev => ({ ...prev, country: 'CA' }))}
+            className={`flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl border-2 transition-all duration-200 ${
+              formData.country === 'CA'
+                ? 'border-red-500 bg-red-50 text-red-700 shadow-lg shadow-red-500/20'
+                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            <span className="text-2xl">🇨🇦</span>
+            <div className="text-left">
+              <div className="font-semibold">Canada</div>
+              <div className="text-xs opacity-75">CAD ($)</div>
+            </div>
+            {formData.country === 'CA' && (
+              <svg className="w-5 h-5 ml-auto text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
+
       {/* Card Name & Slug */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
