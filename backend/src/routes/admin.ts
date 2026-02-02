@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { requireAdminAuth } from '../middlewares/auth';
+import { generateApiKey, hashApiKey } from '../middlewares/apiKey';
 import { scraperService } from '../services/scraperService';
 import { CardService } from '../services/cardService';
 import { bucket, db } from '../config/firebase';
@@ -431,6 +432,105 @@ router.post('/scraper/import-by-slug', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error importing card by slug:', error);
     res.status(500).json({ error: 'Failed to import card' });
+  }
+});
+
+// ==================== API KEY MANAGEMENT ENDPOINTS ====================
+
+// POST /api/admin/api-keys - Create a new API key
+router.post('/api-keys', async (req: Request, res: Response) => {
+  try {
+    const { name, rateLimit = 60 } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: 'API key name is required' });
+    }
+
+    // Generate new API key
+    const apiKey = generateApiKey();
+    const hashedKey = hashApiKey(apiKey);
+
+    // Store hashed key in Firestore
+    await db.collection('api_keys').doc(hashedKey).set({
+      name,
+      rateLimit,
+      active: true,
+      createdAt: Timestamp.now(),
+      createdBy: req.user?.email || 'admin',
+      lastUsedAt: null,
+      usageCount: 0,
+    });
+
+    // Return the plain key (only shown once!)
+    res.status(201).json({
+      message: 'API key created successfully',
+      data: {
+        key: apiKey,
+        name,
+        rateLimit,
+      },
+      warning: 'Save this key securely. It will not be shown again.',
+    });
+  } catch (error) {
+    console.error('Error creating API key:', error);
+    res.status(500).json({ error: 'Failed to create API key' });
+  }
+});
+
+// GET /api/admin/api-keys - List all API keys (without revealing the actual keys)
+router.get('/api-keys', async (req: Request, res: Response) => {
+  try {
+    const snapshot = await db.collection('api_keys').get();
+
+    const keys = snapshot.docs.map(doc => ({
+      id: doc.id.substring(0, 8) + '...', // Show partial hash for identification
+      name: doc.data().name,
+      rateLimit: doc.data().rateLimit,
+      active: doc.data().active,
+      createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
+      createdBy: doc.data().createdBy,
+      lastUsedAt: doc.data().lastUsedAt?.toDate?.() || doc.data().lastUsedAt,
+      usageCount: doc.data().usageCount || 0,
+    }));
+
+    res.json({ data: keys });
+  } catch (error) {
+    console.error('Error listing API keys:', error);
+    res.status(500).json({ error: 'Failed to list API keys' });
+  }
+});
+
+// DELETE /api/admin/api-keys/:keyPrefix - Revoke an API key by partial hash
+router.delete('/api-keys/:keyPrefix', async (req: Request, res: Response) => {
+  try {
+    const { keyPrefix } = req.params;
+
+    if (!keyPrefix || keyPrefix.length < 8) {
+      return res.status(400).json({ error: 'Key prefix must be at least 8 characters' });
+    }
+
+    // Find the key by prefix
+    const snapshot = await db.collection('api_keys').get();
+    const matchingDoc = snapshot.docs.find(doc => doc.id.startsWith(keyPrefix));
+
+    if (!matchingDoc) {
+      return res.status(404).json({ error: 'API key not found' });
+    }
+
+    // Soft delete by setting active to false
+    await db.collection('api_keys').doc(matchingDoc.id).update({
+      active: false,
+      revokedAt: Timestamp.now(),
+      revokedBy: req.user?.email || 'admin',
+    });
+
+    res.json({
+      message: 'API key revoked successfully',
+      name: matchingDoc.data().name,
+    });
+  } catch (error) {
+    console.error('Error revoking API key:', error);
+    res.status(500).json({ error: 'Failed to revoke API key' });
   }
 });
 

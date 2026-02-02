@@ -1,6 +1,157 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ImageUpload } from './ImageUpload';
 import type { CreditCard } from '../../types/creditCard';
+
+// Custom dropdown component with improved UX
+interface DropdownOption {
+  value: string;
+  label: string;
+  description?: string;
+  icon?: React.ReactNode;
+}
+
+interface CustomDropdownProps {
+  options: DropdownOption[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  label: string;
+  className?: string;
+}
+
+function CustomDropdown({ options, value, onChange, placeholder, label, className = '' }: CustomDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const selectedOption = options.find(opt => opt.value === value);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setIsOpen(false);
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setIsOpen(!isOpen);
+    } else if (e.key === 'ArrowDown' && isOpen) {
+      e.preventDefault();
+      const currentIndex = options.findIndex(opt => opt.value === value);
+      const nextIndex = currentIndex < options.length - 1 ? currentIndex + 1 : 0;
+      onChange(options[nextIndex].value);
+    } else if (e.key === 'ArrowUp' && isOpen) {
+      e.preventDefault();
+      const currentIndex = options.findIndex(opt => opt.value === value);
+      const prevIndex = currentIndex > 0 ? currentIndex - 1 : options.length - 1;
+      onChange(options[prevIndex].value);
+    }
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label}
+      </label>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={handleKeyDown}
+        className={`w-full px-4 py-3 text-left border rounded-xl transition-all duration-200 flex items-center justify-between gap-3 ${
+          isOpen
+            ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-white'
+            : 'border-gray-200 hover:border-gray-300 bg-white'
+        }`}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {selectedOption?.icon && (
+            <span className="flex-shrink-0 text-gray-500">{selectedOption.icon}</span>
+          )}
+          <span className={selectedOption ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+        </div>
+        <svg
+          className={`w-5 h-5 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 mt-2 w-full bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden animate-dropdown">
+          <ul className="py-2 max-h-64 overflow-auto" role="listbox">
+            {options.map((option) => (
+              <li key={option.value}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full px-4 py-3 text-left flex items-center gap-3 transition-colors ${
+                    value === option.value
+                      ? 'bg-indigo-50 text-indigo-700'
+                      : 'hover:bg-gray-50 text-gray-700'
+                  }`}
+                  role="option"
+                  aria-selected={value === option.value}
+                >
+                  {option.icon && (
+                    <span className={`flex-shrink-0 ${value === option.value ? 'text-indigo-600' : 'text-gray-400'}`}>
+                      {option.icon}
+                    </span>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-medium ${value === option.value ? 'text-indigo-700' : 'text-gray-900'}`}>
+                      {option.label}
+                    </div>
+                    {option.description && (
+                      <div className="text-xs text-gray-500 mt-0.5">{option.description}</div>
+                    )}
+                  </div>
+                  {value === option.value && (
+                    <svg className="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes dropdown {
+          from {
+            opacity: 0;
+            transform: translateY(-8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-dropdown {
+          animation: dropdown 0.15s ease-out;
+        }
+      `}</style>
+    </div>
+  );
+}
 
 interface CardFormData {
   name: string;
@@ -307,22 +458,44 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Rewards Type
-            </label>
-            <select
-              name="rewardsType"
-              value={formData.rewardsType}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
-            >
-              <option value="">Select type...</option>
-              <option value="cashback">Cash Back</option>
-              <option value="points">Points</option>
-              <option value="miles">Miles</option>
-            </select>
-          </div>
+          <CustomDropdown
+            label="Rewards Type"
+            placeholder="Select type..."
+            value={formData.rewardsType}
+            onChange={(value) => setFormData(prev => ({ ...prev, rewardsType: value as CardFormData['rewardsType'] }))}
+            options={[
+              {
+                value: 'cashback',
+                label: 'Cash Back',
+                description: 'Earn money back on purchases',
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ),
+              },
+              {
+                value: 'points',
+                label: 'Points',
+                description: 'Flexible rewards points',
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                ),
+              },
+              {
+                value: 'miles',
+                label: 'Miles',
+                description: 'Travel rewards & airline miles',
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                ),
+              },
+            ]}
+          />
         </div>
       </div>
 
@@ -335,23 +508,60 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
           {renderStarPicker()}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Credit Required
-          </label>
-          <select
-            name="creditRequired"
-            value={formData.creditRequired}
-            onChange={handleInputChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          >
-            <option value="">Select credit level...</option>
-            <option value="Excellent">Excellent (720+)</option>
-            <option value="Good">Good (670-719)</option>
-            <option value="Fair">Fair (580-669)</option>
-            <option value="Poor">Poor (300-579)</option>
-          </select>
-        </div>
+        <CustomDropdown
+          label="Credit Required"
+          placeholder="Select credit level..."
+          value={formData.creditRequired}
+          onChange={(value) => setFormData(prev => ({ ...prev, creditRequired: value as CardFormData['creditRequired'] }))}
+          options={[
+            {
+              value: 'Excellent',
+              label: 'Excellent',
+              description: 'Credit score 720+',
+              icon: (
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              ),
+            },
+            {
+              value: 'Good',
+              label: 'Good',
+              description: 'Credit score 670-719',
+              icon: (
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              ),
+            },
+            {
+              value: 'Fair',
+              label: 'Fair',
+              description: 'Credit score 580-669',
+              icon: (
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">~</span>
+                </div>
+              ),
+            },
+            {
+              value: 'Poor',
+              label: 'Poor',
+              description: 'Credit score 300-579',
+              icon: (
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+              ),
+            },
+          ]}
+        />
       </div>
 
       {/* Pros & Cons */}

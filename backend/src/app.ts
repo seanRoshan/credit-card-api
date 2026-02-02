@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cardsRouter from './routes/cards';
 import adminRouter from './routes/admin';
+import publicApiRouter from './routes/publicApi';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.get('/api/health', (req, res) => {
 // Routes
 app.use('/api/cards', cardsRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/v1', publicApiRouter);
 
 // 404 handler
 app.use((req, res) => {

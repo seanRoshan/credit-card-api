@@ -65,6 +65,16 @@ export class CardService {
     return doc.data() as CreditCard;
   }
 
+  async getCardBySlug(slug: string): Promise<CreditCard | null> {
+    const snapshot = await this.collection
+      .where('slug', '==', slug)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) return null;
+    return snapshot.docs[0].data() as CreditCard;
+  }
+
   async getCards(params: CardSearchParams = {}): Promise<CardListResponse> {
     const {
       limit = 20,

@@ -176,6 +176,56 @@ export const cardApi = {
     }
     return response.json();
   },
+
+  // Admin - API Key Management
+  async createApiKey(name: string, rateLimit: number, token: string): Promise<{
+    message: string;
+    data: { key: string; name: string; rateLimit: number };
+    warning: string;
+  }> {
+    const response = await fetch(`${API_BASE}/admin/api-keys`, {
+      method: 'POST',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify({ name, rateLimit }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create API key');
+    }
+    return response.json();
+  },
+
+  async listApiKeys(token: string): Promise<{
+    data: Array<{
+      id: string;
+      name: string;
+      rateLimit: number;
+      active: boolean;
+      createdAt: string;
+      createdBy: string;
+      lastUsedAt: string | null;
+      usageCount: number;
+    }>;
+  }> {
+    const response = await fetch(`${API_BASE}/admin/api-keys`, {
+      method: 'GET',
+      headers: getAuthHeaders(token),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to list API keys');
+    }
+    return response.json();
+  },
+
+  async revokeApiKey(keyPrefix: string, token: string): Promise<{ message: string; name: string }> {
+    const response = await fetch(`${API_BASE}/admin/api-keys/${keyPrefix}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(token),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to revoke API key');
+    }
+    return response.json();
+  },
 };
 
 // Admin form data interface (matches CardForm component)
