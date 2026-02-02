@@ -1,10 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import * as crypto from 'crypto';
-import { config } from '../config/env';
 import { loggers } from '../config/logger';
 import { createResponse } from '../types';
 
-const API_KEY = config.apiKey;
+/**
+ * Get the API key at runtime (for Firebase Functions secrets support)
+ * Secrets are only available at runtime, not at module load time
+ */
+function getApiKey(): string {
+  return process.env.SCRAPER_API_KEY || 'dev-scraper-key-change-in-production';
+}
 
 /**
  * API Key authentication middleware using constant-time comparison
@@ -29,9 +34,12 @@ export const authenticateApiKey = (
   }
 
   try {
+    // Get the expected API key at runtime (secrets are only available at runtime)
+    const expectedApiKey = getApiKey();
+
     // Use constant-time comparison to prevent timing attacks
     const keyBuffer = Buffer.from(apiKey);
-    const expectedBuffer = Buffer.from(API_KEY);
+    const expectedBuffer = Buffer.from(expectedApiKey);
 
     // Check lengths match (also in constant time via the comparison below)
     if (keyBuffer.length !== expectedBuffer.length) {
@@ -71,8 +79,9 @@ export const optionalAuth = (
 
   if (apiKey) {
     try {
+      const expectedApiKey = getApiKey();
       const keyBuffer = Buffer.from(apiKey);
-      const expectedBuffer = Buffer.from(API_KEY);
+      const expectedBuffer = Buffer.from(expectedApiKey);
 
       if (keyBuffer.length === expectedBuffer.length) {
         const isValid = crypto.timingSafeEqual(keyBuffer, expectedBuffer);
