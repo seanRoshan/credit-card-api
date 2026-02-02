@@ -1,10 +1,361 @@
 @import "tailwindcss";
 
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================
+   CRYSTALLINE TECH DESIGN SYSTEM
+   Modern SaaS with Glass Morphism
+   ============================================ */
+
+/* CSS Custom Properties */
+:root {
+  /* Primary Brand Gradient */
+  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #c026d3 100%);
+
+  /* Accent Colors */
+  --color-accent-cyan: #06b6d4;
+  --color-accent-emerald: #10b981;
+  --color-accent-amber: #f59e0b;
+  --color-accent-rose: #f43f5e;
+
+  /* Animation Timings */
+  --transition-fast: 150ms;
+  --transition-base: 200ms;
+  --transition-slow: 300ms;
+  --transition-slower: 500ms;
+
+  /* Easing */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+
+  /* Glass Effects */
+  --glass-blur: 20px;
+  --glass-blur-lg: 40px;
+
+  /* Shadows */
+  --shadow-glow-sm: 0 0 20px -5px;
+  --shadow-glow-md: 0 0 40px -10px;
+  --shadow-glow-lg: 0 0 60px -15px;
+}
+
+/* Light Theme (Default) */
+:root,
+.light {
+  --bg-base: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-muted: #f1f5f9;
+  --bg-subtle: #e2e8f0;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #475569;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  --border-default: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --border-strong: #cbd5e1;
+
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-bg-strong: rgba(255, 255, 255, 0.98);
+  --glass-border: rgba(203, 213, 225, 0.6);
+
+  --shadow-color: 0 0 0;
+  --shadow-ambient: rgba(0, 0, 0, 0.04);
+  --shadow-penumbra: rgba(0, 0, 0, 0.08);
+  --shadow-umbra: rgba(0, 0, 0, 0.12);
+
+  --glow-primary: rgba(99, 102, 241, 0.25);
+  --glow-secondary: rgba(139, 92, 246, 0.2);
+}
+
+/* Dark Theme */
+.dark {
+  --bg-base: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-elevated: #334155;
+  --bg-muted: #1e293b;
+  --bg-subtle: #334155;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #0f172a;
+
+  --border-default: #334155;
+  --border-subtle: #1e293b;
+  --border-strong: #475569;
+
+  --glass-bg: rgba(15, 23, 42, 0.8);
+  --glass-bg-strong: rgba(30, 41, 59, 0.95);
+  --glass-border: rgba(51, 65, 85, 0.5);
+
+  --shadow-color: 0 0 0;
+  --shadow-ambient: rgba(0, 0, 0, 0.2);
+  --shadow-penumbra: rgba(0, 0, 0, 0.3);
+  --shadow-umbra: rgba(0, 0, 0, 0.4);
+
+  --glow-primary: rgba(99, 102, 241, 0.4);
+  --glow-secondary: rgba(139, 92, 246, 0.35);
+}
+
+/* Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  transition: background-color var(--transition-slow) var(--ease-out-expo),
+              color var(--transition-slow) var(--ease-out-expo);
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Selection Styling */
+::selection {
+  background-color: rgba(99, 102, 241, 0.3);
+  color: var(--text-primary);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 5px;
+  border: 2px solid var(--bg-muted);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Focus Styles */
+*:focus-visible {
+  outline: 2px solid rgb(99, 102, 241);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+/* Slide In Animation */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.4s var(--ease-out-expo);
+}
+
+/* Fade In Up */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s var(--ease-out-expo);
+}
+
+/* Pulse Glow */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px -5px var(--glow-primary);
+  }
+  50% {
+    box-shadow: 0 0 30px -3px var(--glow-primary);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Float */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-muted) 0%,
+    var(--bg-subtle) 50%,
+    var(--bg-muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Gradient Shift */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Glass Morphism */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(var(--glass-blur-lg));
+  -webkit-backdrop-filter: blur(var(--glass-blur-lg));
+  border: 1px solid var(--glass-border);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient Background */
+.gradient-bg {
+  background: var(--gradient-primary);
+}
+
+.gradient-bg-animated {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 25%, #d946ef 50%, #8b5cf6 75%, #6366f1 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* Glow Effects */
+.glow-primary {
+  box-shadow: var(--shadow-glow-md) var(--glow-primary);
+}
+
+.glow-primary-lg {
+  box-shadow: var(--shadow-glow-lg) var(--glow-primary);
+}
+
+/* Elevated Surfaces */
+.elevated {
+  background: var(--bg-elevated);
+  box-shadow:
+    0 1px 3px var(--shadow-ambient),
+    0 4px 6px var(--shadow-penumbra);
+}
+
+.elevated-lg {
+  background: var(--bg-elevated);
+  box-shadow:
+    0 4px 6px var(--shadow-ambient),
+    0 10px 15px var(--shadow-penumbra),
+    0 20px 25px var(--shadow-umbra);
+}
+
+/* Interactive Card */
+.card-interactive {
+  transition: transform var(--transition-base) var(--ease-out-expo),
+              box-shadow var(--transition-base) var(--ease-out-expo);
+}
+
+.card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 10px 15px var(--shadow-ambient),
+    0 20px 25px var(--shadow-penumbra),
+    var(--shadow-glow-sm) var(--glow-primary);
+}
+
+/* Noise Texture Overlay */
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+.dark .noise-overlay::before {
+  opacity: 0.05;
+}
+
+/* Theme Transition Disable (prevents flash on page load) */
+.theme-transition-disable * {
+  transition: none !important;
 }

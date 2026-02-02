@@ -55,28 +55,28 @@ function ConfirmModal({
           className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
           onClick={onCancel}
         />
-        <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+        <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
           <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-xl ${variant === 'danger' ? 'bg-red-100' : 'bg-indigo-100'}`}>
+            <div className={`p-3 rounded-xl ${variant === 'danger' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-indigo-100 dark:bg-indigo-900/30'}`}>
               {variant === 'danger' ? (
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               ) : (
-                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               )}
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-              <p className="mt-2 text-sm text-gray-600">{message}</p>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{message}</p>
             </div>
           </div>
           <div className="mt-6 flex gap-3 justify-end">
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+              className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors"
             >
               {cancelText}
             </button>
@@ -170,11 +170,11 @@ function ProgressBar({
     <div className="space-y-2">
       {label && (
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600 font-medium">{label}</span>
-          <span className="text-gray-500">{Math.round(progress)}%</span>
+          <span className="text-slate-600 dark:text-slate-400 font-medium">{label}</span>
+          <span className="text-slate-500 dark:text-slate-400">{Math.round(progress)}%</span>
         </div>
       )}
-      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+      <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-500 ease-out"
           style={{ width: `${Math.min(100, progress)}%` }}
@@ -183,7 +183,7 @@ function ProgressBar({
       {stats && (
         <div className="flex gap-4 text-xs mt-2">
           <span className="text-emerald-600 font-medium">✓ {stats.scraped} imported</span>
-          <span className="text-gray-500">⏭ {stats.skipped} skipped</span>
+          <span className="text-slate-500 dark:text-slate-400">⏭ {stats.skipped} skipped</span>
           {stats.failed > 0 && (
             <span className="text-red-500">✗ {stats.failed} failed</span>
           )}
@@ -530,7 +530,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
               activeCountry === tab.id
                 ? `bg-gradient-to-r ${tab.color} text-white shadow-lg`
-                : 'text-gray-600 hover:bg-white/50'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700/50'
             }`}
           >
             <span className="text-xl">{tab.flag}</span>
@@ -549,7 +549,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
         <>
           {/* Search Section */}
           <div className="rounded-xl p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
               <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -564,7 +564,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Search for US credit cards..."
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-12 bg-white"
+                  className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-12 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
                 />
                 {isSearching && (
                   <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -580,7 +580,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                 disabled={isSearching || !searchQuery.trim()}
                 className={`px-6 py-3 rounded-xl font-semibold transition-all ${
                   isSearching || !searchQuery.trim()
-                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:scale-[1.02]'
                 }`}
               >
@@ -591,14 +591,14 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
             {/* Search Results */}
             {searchResults.length > 0 && (
               <div className="mt-6 space-y-3">
-                <p className="text-sm text-gray-600 font-medium">
+                <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
                   Found {searchResults.length} results:
                 </p>
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                   {searchResults.map((result, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all"
+                      className="flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-700 hover:shadow-md transition-all"
                     >
                       {result.imageUrl ? (
                         <img
@@ -614,8 +614,8 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-gray-900 truncate">{result.name}</h4>
-                        <div className="flex gap-3 text-xs text-gray-500">
+                        <h4 className="font-medium text-slate-900 dark:text-white truncate">{result.name}</h4>
+                        <div className="flex gap-3 text-xs text-slate-500 dark:text-slate-400">
                           {result.annualFee && <span>{result.annualFee}</span>}
                           {result.rewardsRate && <span>{result.rewardsRate}</span>}
                         </div>
@@ -625,7 +625,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                         disabled={importingUrl === result.url}
                         className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
                           importingUrl === result.url
-                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                            ? 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                             : 'bg-green-500 text-white hover:bg-green-600 hover:shadow-md'
                         }`}
                       >
@@ -656,13 +656,13 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
           {/* Divider */}
           <div className="flex items-center gap-4">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="text-sm text-gray-500 font-medium">OR</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">OR</span>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
           {/* Paste URL Section */}
           <div className="rounded-xl p-6 bg-gradient-to-r from-purple-50 to-violet-50">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
               <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
@@ -675,14 +675,14 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                 value={pasteUrl}
                 onChange={(e) => setPasteUrl(e.target.value)}
                 placeholder="https://wallethub.com/credit-cards/..."
-                className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                className="flex-1 px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
               />
               <button
                 onClick={handleImportFromUrl}
                 disabled={!pasteUrl.trim() || importingUrl === pasteUrl}
                 className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${
                   !pasteUrl.trim()
-                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:shadow-lg hover:scale-[1.02]'
                 }`}
               >
@@ -713,25 +713,25 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
         <>
           {/* Category Import Section */}
           <div className="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
               <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
               Import by Category
             </h3>
 
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               RateHub lists credit cards on category pages. Select a category to import all cards from that page.
             </p>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Category</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   disabled={isBulkImporting || categories.length === 0}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white disabled:opacity-50"
+                  className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white disabled:opacity-50"
                 >
                   {categories.map((cat) => (
                     <option key={cat.key} value={cat.key}>{cat.name}</option>
@@ -739,7 +739,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Limit per Category</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Limit per Category</label>
                 <input
                   type="number"
                   value={bulkLimit}
@@ -747,7 +747,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                   min={1}
                   max={100}
                   disabled={isBulkImporting}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white disabled:opacity-50"
+                  className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white disabled:opacity-50"
                 />
               </div>
               <div className="flex items-end">
@@ -757,7 +757,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                     checked={skipExisting}
                     onChange={(e) => setSkipExisting(e.target.checked)}
                     disabled={isBulkImporting}
-                    className="w-5 h-5 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    className="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-red-600 dark:text-red-400 focus:ring-red-500"
                   />
                   <span className="text-sm text-gray-700">Skip existing cards</span>
                 </label>
@@ -768,7 +768,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                   disabled={isBulkImporting || !selectedCategory}
                   className={`w-full px-6 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
                     isBulkImporting || !selectedCategory
-                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                      ? 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-red-600 to-rose-600 text-white hover:shadow-lg hover:scale-[1.02]'
                   }`}
                 >
@@ -794,7 +794,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
 
             {/* Bulk Progress */}
             {bulkProgress && (
-              <div className="mt-4 p-4 bg-white rounded-xl border border-red-200">
+              <div className="mt-4 p-4 bg-white dark:bg-slate-800 rounded-xl border border-red-200">
                 <ProgressBar
                   progress={bulkProgress.current}
                   label={`Importing ${bulkProgress.currentCategory}...`}
@@ -811,20 +811,20 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
           {/* Divider */}
           <div className="flex items-center gap-4">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="text-sm text-gray-500 font-medium">OR</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">OR</span>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
           {/* Custom URL Import */}
           <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
               <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
               Import from Custom URL
             </h3>
 
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Paste any RateHub blog/category page URL to import all cards listed on that page.
             </p>
 
@@ -834,14 +834,14 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                 value={customUrl}
                 onChange={(e) => setCustomUrl(e.target.value)}
                 placeholder="https://www.ratehub.ca/blog/best-..."
-                className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white"
+                className="flex-1 px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
               />
               <button
                 onClick={handleCustomUrlImport}
                 disabled={!customUrl.trim() || isBulkImporting}
                 className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${
                   !customUrl.trim() || isBulkImporting
-                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:shadow-lg hover:scale-[1.02]'
                 }`}
               >
@@ -856,7 +856,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
           {/* Divider */}
           <div className="flex items-center gap-4">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="text-sm text-gray-500 font-medium">IMPORT ALL</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">IMPORT ALL</span>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
@@ -864,13 +864,13 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
           <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                <h4 className="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                   <svg className="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
                   </svg>
                   Import All Categories
                 </h4>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                   Import cards from all {categories.length} RateHub categories at once
                 </p>
               </div>
@@ -879,7 +879,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
                 disabled={isImportingAll || categories.length === 0}
                 className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${
                   isImportingAll || categories.length === 0
-                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02]'
                 }`}
               >
@@ -904,7 +904,7 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
 
             {/* Import All Progress */}
             {importAllProgress && (
-              <div className="mt-4 p-4 bg-white rounded-xl border border-violet-200">
+              <div className="mt-4 p-4 bg-white dark:bg-slate-800 rounded-xl border border-violet-200">
                 <ProgressBar
                   progress={(importAllProgress.current / importAllProgress.total) * 100}
                   label={`Processing: ${importAllProgress.currentCategory} (${importAllProgress.current}/${importAllProgress.total} categories)`}
@@ -931,11 +931,11 @@ export function CardImporter({ onImportComplete }: CardImporterProps) {
       )}
 
       {/* Info Box */}
-      <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+      <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
         <svg className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-slate-600 dark:text-slate-400">
           <p className="font-medium text-gray-700 mb-1">
             {activeCountry === 'US' ? 'Importing from WalletHub (USA)' : 'Importing from RateHub (Canada)'}
           </p>

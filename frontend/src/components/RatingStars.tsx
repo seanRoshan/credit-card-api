@@ -6,7 +6,14 @@ interface RatingStarsProps {
 
 export function RatingStars({ rating, maxRating = 5, size = 'md' }: RatingStarsProps) {
   if (rating === null) {
-    return <span className="text-gray-400 text-sm">No rating</span>;
+    return (
+      <span className="text-slate-400 dark:text-slate-500 text-sm flex items-center gap-1">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        No rating
+      </span>
+    );
   }
 
   const sizeClasses = {
@@ -24,7 +31,7 @@ export function RatingStars({ rating, maxRating = 5, size = 'md' }: RatingStarsP
       <span key={i} className="relative">
         {/* Empty star */}
         <svg
-          className={`${sizeClasses[size]} text-gray-300`}
+          className={`${sizeClasses[size]} text-slate-200 dark:text-slate-700`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -33,7 +40,7 @@ export function RatingStars({ rating, maxRating = 5, size = 'md' }: RatingStarsP
         {/* Filled star overlay */}
         {(filled || partial) && (
           <svg
-            className={`${sizeClasses[size]} text-yellow-400 absolute top-0 left-0`}
+            className={`${sizeClasses[size]} text-amber-400 absolute top-0 left-0 drop-shadow-sm`}
             fill="currentColor"
             viewBox="0 0 20 20"
             style={{
@@ -50,7 +57,9 @@ export function RatingStars({ rating, maxRating = 5, size = 'md' }: RatingStarsP
   return (
     <div className="flex items-center gap-0.5">
       {stars}
-      <span className="ml-1 text-sm text-gray-600">{rating.toFixed(1)}</span>
+      <span className="ml-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 px-2 py-0.5 rounded-lg">
+        {rating.toFixed(1)}
+      </span>
     </div>
   );
 }

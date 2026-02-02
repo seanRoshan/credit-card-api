@@ -57,7 +57,7 @@ function CustomDropdown({ options, value, onChange, placeholder, label, classNam
 
   return (
     <div ref={dropdownRef} className={`relative ${className}`}>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
         {label}
       </label>
       <button
@@ -66,22 +66,22 @@ function CustomDropdown({ options, value, onChange, placeholder, label, classNam
         onKeyDown={handleKeyDown}
         className={`w-full px-4 py-3 text-left border rounded-xl transition-all duration-200 flex items-center justify-between gap-3 ${
           isOpen
-            ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-white'
-            : 'border-gray-200 hover:border-gray-300 bg-white'
+            ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-white dark:bg-slate-800'
+            : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 bg-white dark:bg-slate-800'
         }`}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-3 flex-1 min-w-0">
           {selectedOption?.icon && (
-            <span className="flex-shrink-0 text-gray-500">{selectedOption.icon}</span>
+            <span className="flex-shrink-0 text-slate-500 dark:text-slate-400">{selectedOption.icon}</span>
           )}
-          <span className={selectedOption ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+          <span className={selectedOption ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-400 dark:text-slate-500'}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
         <svg
-          className={`w-5 h-5 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 text-slate-400 dark:text-slate-500 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -91,7 +91,7 @@ function CustomDropdown({ options, value, onChange, placeholder, label, classNam
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-2 w-full bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden animate-dropdown">
+        <div className="absolute z-50 mt-2 w-full bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden animate-dropdown">
           <ul className="py-2 max-h-64 overflow-auto" role="listbox">
             {options.map((option) => (
               <li key={option.value}>
@@ -103,27 +103,27 @@ function CustomDropdown({ options, value, onChange, placeholder, label, classNam
                   }}
                   className={`w-full px-4 py-3 text-left flex items-center gap-3 transition-colors ${
                     value === option.value
-                      ? 'bg-indigo-50 text-indigo-700'
-                      : 'hover:bg-gray-50 text-gray-700'
+                      ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
+                      : 'hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
                   }`}
                   role="option"
                   aria-selected={value === option.value}
                 >
                   {option.icon && (
-                    <span className={`flex-shrink-0 ${value === option.value ? 'text-indigo-600' : 'text-gray-400'}`}>
+                    <span className={`flex-shrink-0 ${value === option.value ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
                       {option.icon}
                     </span>
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className={`font-medium ${value === option.value ? 'text-indigo-700' : 'text-gray-900'}`}>
+                    <div className={`font-medium ${value === option.value ? 'text-indigo-700 dark:text-indigo-400' : 'text-slate-900 dark:text-white'}`}>
                       {option.label}
                     </div>
                     {option.description && (
-                      <div className="text-xs text-gray-500 mt-0.5">{option.description}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{option.description}</div>
                     )}
                   </div>
                   {value === option.value && (
-                    <svg className="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
@@ -301,13 +301,14 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
             key={star}
             type="button"
             onClick={() => handleRatingChange(star)}
-            className="focus:outline-none transition-transform hover:scale-110"
+            className="focus:outline-none transition-transform hover:scale-110 p-1"
+            aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
           >
             <svg
               className={`w-8 h-8 transition-colors ${
                 star <= formData.overallRating
                   ? 'text-yellow-400 fill-yellow-400'
-                  : 'text-gray-300 fill-gray-300'
+                  : 'text-slate-300 dark:text-slate-600 fill-slate-300 dark:fill-slate-600'
               }`}
               viewBox="0 0 24 24"
             >
@@ -315,7 +316,7 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
             </svg>
           </button>
         ))}
-        <span className="ml-3 text-lg font-semibold text-gray-700">
+        <span className="ml-3 text-lg font-semibold text-slate-700 dark:text-slate-300">
           {formData.overallRating}/5
         </span>
       </div>
@@ -325,8 +326,8 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Country Selection */}
-      <div className="bg-gradient-to-r from-sky-50 to-blue-50 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+      <div className="bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
           <svg className="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -336,10 +337,11 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
           <button
             type="button"
             onClick={() => setFormData(prev => ({ ...prev, country: 'US' }))}
+            aria-label="Select United States"
             className={`flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl border-2 transition-all duration-200 ${
               formData.country === 'US'
-                ? 'border-sky-500 bg-sky-50 text-sky-700 shadow-lg shadow-sky-500/20'
-                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 shadow-lg shadow-sky-500/20'
+                : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700'
             }`}
           >
             <span className="text-2xl">🇺🇸</span>
@@ -348,7 +350,7 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
               <div className="text-xs opacity-75">USD ($)</div>
             </div>
             {formData.country === 'US' && (
-              <svg className="w-5 h-5 ml-auto text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 ml-auto text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             )}
@@ -356,10 +358,11 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
           <button
             type="button"
             onClick={() => setFormData(prev => ({ ...prev, country: 'CA' }))}
+            aria-label="Select Canada"
             className={`flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl border-2 transition-all duration-200 ${
               formData.country === 'CA'
-                ? 'border-red-500 bg-red-50 text-red-700 shadow-lg shadow-red-500/20'
-                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                ? 'border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 shadow-lg shadow-red-500/20'
+                : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700'
             }`}
           >
             <span className="text-2xl">🇨🇦</span>
@@ -368,7 +371,7 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
               <div className="text-xs opacity-75">CAD ($)</div>
             </div>
             {formData.country === 'CA' && (
-              <svg className="w-5 h-5 ml-auto text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 ml-auto text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             )}
@@ -379,7 +382,7 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
       {/* Card Name & Slug */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Card Name <span className="text-red-500">*</span>
           </label>
           <input
@@ -389,16 +392,16 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
             onChange={handleNameChange}
             placeholder="e.g., Chase Sapphire Preferred"
             className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-              errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200'
+              errors.name ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800'
             }`}
           />
           {errors.name && (
-            <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Slug <span className="text-red-500">*</span>
           </label>
           <input
@@ -408,13 +411,13 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
             onChange={handleSlugChange}
             placeholder="chase-sapphire-preferred"
             className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-              errors.slug ? 'border-red-300 bg-red-50' : 'border-gray-200'
+              errors.slug ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800'
             }`}
           />
           {errors.slug && (
-            <p className="mt-1 text-sm text-red-600">{errors.slug}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.slug}</p>
           )}
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             Auto-generated from name, or edit manually
           </p>
         </div>
@@ -423,11 +426,11 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
       {/* Annual Fee & APR */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Annual Fee
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 font-medium">
               $
             </span>
             <input
@@ -437,13 +440,13 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
               onChange={handleAnnualFeeChange}
               min="0"
               step="0.01"
-              className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full pl-8 pr-4 py-3 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Intro APR
           </label>
           <input
@@ -452,12 +455,12 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
             value={formData.introApr}
             onChange={handleInputChange}
             placeholder="e.g., 0% for 15 months"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Regular APR <span className="text-red-500">*</span>
           </label>
           <input
@@ -467,18 +470,18 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
             onChange={handleInputChange}
             placeholder="e.g., 21.49% - 28.49%"
             className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-              errors.regularApr ? 'border-red-300 bg-red-50' : 'border-gray-200'
+              errors.regularApr ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800'
             }`}
           />
           {errors.regularApr && (
-            <p className="mt-1 text-sm text-red-600">{errors.regularApr}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.regularApr}</p>
           )}
         </div>
       </div>
 
       {/* Rewards Section */}
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
           <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -486,7 +489,7 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               Rewards Rate
             </label>
             <input
@@ -495,12 +498,12 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
               value={formData.rewardsRate}
               onChange={handleInputChange}
               placeholder="e.g., 3% on dining, 2% on travel"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+              className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               Rewards Bonus
             </label>
             <input
@@ -509,7 +512,7 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
               value={formData.rewardsBonus}
               onChange={handleInputChange}
               placeholder="e.g., 60,000 points after $4k spend"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+              className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </div>
 
@@ -557,7 +560,7 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
       {/* Rating & Credit Required */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Overall Rating
           </label>
           {renderStarPicker()}
@@ -622,9 +625,9 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
       {/* Pros & Cons */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Pros
-            <span className="font-normal text-gray-500 ml-2">(one per line)</span>
+            <span className="font-normal text-slate-500 dark:text-slate-400 ml-2">(one per line)</span>
           </label>
           <textarea
             name="pros"
@@ -632,14 +635,14 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
             onChange={handleInputChange}
             rows={5}
             placeholder="No annual fee first year&#10;Great welcome bonus&#10;Flexible redemption options"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Cons
-            <span className="font-normal text-gray-500 ml-2">(one per line)</span>
+            <span className="font-normal text-slate-500 dark:text-slate-400 ml-2">(one per line)</span>
           </label>
           <textarea
             name="cons"
@@ -647,14 +650,14 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
             onChange={handleInputChange}
             rows={5}
             placeholder="High annual fee&#10;Foreign transaction fees&#10;Limited transfer partners"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
           />
         </div>
       </div>
 
       {/* Image Upload */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
           Card Image
         </label>
         <ImageUpload
@@ -671,7 +674,7 @@ export function CardForm({ initialData, onSubmit, isSubmitting = false }: CardFo
           className={`
             px-8 py-3 rounded-xl font-semibold text-white transition-all
             ${isSubmitting
-              ? 'bg-gray-400 cursor-not-allowed'
+              ? 'bg-slate-400 dark:bg-slate-600 cursor-not-allowed'
               : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
             }
           `}

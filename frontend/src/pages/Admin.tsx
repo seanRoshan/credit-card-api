@@ -5,6 +5,7 @@ import { CardImporter } from '../components/admin/CardImporter';
 import { CardTable } from '../components/admin/CardTable';
 import { cardApi } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import type { CreditCard } from '../types/creditCard';
 
 type TabType = 'cards' | 'scrape' | 'api-keys';
@@ -27,6 +28,52 @@ interface ApiKey {
   createdBy: string;
   lastUsedAt: string | null;
   usageCount: number;
+}
+
+// Theme Toggle Button Component
+function ThemeToggle() {
+  const { resolvedTheme, toggleTheme } = useTheme();
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300"
+      aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+    >
+      <div className="relative w-5 h-5">
+        <svg
+          className={`absolute inset-0 w-5 h-5 text-amber-500 transition-all duration-300 ${
+            resolvedTheme === 'dark' ? 'opacity-0 rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'
+          }`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+          />
+        </svg>
+        <svg
+          className={`absolute inset-0 w-5 h-5 text-indigo-400 transition-all duration-300 ${
+            resolvedTheme === 'dark' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'
+          }`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+          />
+        </svg>
+      </div>
+    </button>
+  );
 }
 
 export function Admin() {
@@ -274,8 +321,8 @@ export function Admin() {
         </svg>
       ),
       gradient: 'from-blue-500 to-indigo-600',
-      bgLight: 'bg-blue-50',
-      iconColor: 'text-blue-600',
+      iconBg: 'bg-blue-100 dark:bg-blue-900/30',
+      iconColor: 'text-blue-600 dark:text-blue-400',
     },
     {
       label: 'Added Today',
@@ -286,8 +333,8 @@ export function Admin() {
         </svg>
       ),
       gradient: 'from-emerald-500 to-teal-600',
-      bgLight: 'bg-emerald-50',
-      iconColor: 'text-emerald-600',
+      iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
     },
     {
       label: 'This Week',
@@ -298,8 +345,8 @@ export function Admin() {
         </svg>
       ),
       gradient: 'from-violet-500 to-purple-600',
-      bgLight: 'bg-violet-50',
-      iconColor: 'text-violet-600',
+      iconBg: 'bg-violet-100 dark:bg-violet-900/30',
+      iconColor: 'text-violet-600 dark:text-violet-400',
     },
     {
       label: 'No Fee Cards',
@@ -310,8 +357,8 @@ export function Admin() {
         </svg>
       ),
       gradient: 'from-amber-500 to-orange-600',
-      bgLight: 'bg-amber-50',
-      iconColor: 'text-amber-600',
+      iconBg: 'bg-amber-100 dark:bg-amber-900/30',
+      iconColor: 'text-amber-600 dark:text-amber-400',
     },
   ];
 
@@ -346,58 +393,62 @@ export function Admin() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-30">
+      <header className="glass-strong border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Left side */}
             <div className="flex items-center gap-4">
               <Link
                 to="/"
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200"
+                className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all duration-200"
                 title="Back to home"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
               </Link>
-              <div className="hidden sm:block h-6 w-px bg-gray-200" />
+              <div className="hidden sm:block h-6 w-px bg-slate-200 dark:bg-slate-700" />
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl blur opacity-40 group-hover:opacity-60 transition duration-300" />
+                  <div className="relative w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-lg">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold text-gray-900">Admin Dashboard</h1>
-                  <p className="text-xs text-gray-500">Manage cards & API access</p>
+                  <h1 className="text-lg font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Manage cards & API access</p>
                 </div>
               </div>
             </div>
 
             {/* Right side */}
             <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
+              <ThemeToggle />
+              <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
+                <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white text-sm font-bold shadow-sm">
                   {user?.email?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-gray-700 truncate max-w-[140px]">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate max-w-[120px]">
                     {user?.email}
                   </span>
-                  <span className="text-xs text-indigo-600 font-semibold">Administrator</span>
+                  <span className="text-xs font-semibold gradient-text">Administrator</span>
                 </div>
               </div>
               <button
                 onClick={handleSignOut}
                 disabled={signingOut}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200 disabled:opacity-50"
+                className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all duration-200 disabled:opacity-50"
                 title="Sign out"
               >
                 {signingOut ? (
-                  <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-slate-300 dark:border-slate-600 border-t-slate-600 dark:border-t-slate-300 rounded-full animate-spin" />
                 ) : (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -447,28 +498,28 @@ export function Admin() {
           {statsCards.map((stat, index) => (
             <div
               key={index}
-              className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-300 overflow-hidden"
+              className="group relative bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200/50 dark:border-slate-700/50 card-interactive overflow-hidden"
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 dark:group-hover:opacity-10 transition-opacity duration-300`} />
               <div className="relative">
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-xl ${stat.bgLight} group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`p-3 rounded-xl ${stat.iconBg} group-hover:scale-110 transition-transform duration-300`}>
                     <div className={stat.iconColor}>{stat.icon}</div>
                   </div>
                   <div className={`text-3xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
                     {stat.value}
                   </div>
                 </div>
-                <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{stat.label}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Main Content Card */}
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-slate-800/50 rounded-3xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden">
           {/* Tab Navigation */}
-          <div className="border-b border-gray-100 bg-gray-50/50">
+          <div className="border-b border-slate-200/50 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/50">
             <div className="flex">
               {tabs.map((tab) => (
                 <button
@@ -479,16 +530,16 @@ export function Admin() {
                   }}
                   className={`relative flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'text-indigo-600 bg-white'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+                      ? 'text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800/50'
                   }`}
                 >
-                  <span className={activeTab === tab.id ? 'text-indigo-600' : 'text-gray-400'}>
+                  <span className={activeTab === tab.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}>
                     {tab.icon}
                   </span>
                   {tab.label}
                   {activeTab === tab.id && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600" />
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 gradient-bg" />
                   )}
                 </button>
               ))}
@@ -501,21 +552,21 @@ export function Admin() {
             {activeTab === 'cards' && (
               <div className="space-y-6">
                 {editingCard && (
-                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100">
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl border border-indigo-200/50 dark:border-indigo-800/50">
                     <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white rounded-xl shadow-sm">
-                        <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
+                        <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-900">Editing: {editingCard.name}</p>
-                        <p className="text-sm text-gray-500">Update the card details below</p>
+                        <p className="font-semibold text-slate-900 dark:text-white">Editing: {editingCard.name}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">Update the card details below</p>
                       </div>
                     </div>
                     <button
                       onClick={handleCancelEdit}
-                      className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-white rounded-xl transition-all duration-200"
+                      className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all duration-200"
                     >
                       Cancel
                     </button>
@@ -540,12 +591,12 @@ export function Admin() {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">API Key Management</h2>
-                    <p className="text-sm text-gray-500 mt-1">Generate and manage API keys for external applications</p>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">API Key Management</h2>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Generate and manage API keys for external applications</p>
                   </div>
                   <button
                     onClick={() => setShowCreateForm(!showCreateForm)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-200"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 gradient-bg hover:opacity-90 text-white font-medium rounded-xl shadow-lg glow-primary transition-all duration-200"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -556,32 +607,32 @@ export function Admin() {
 
                 {/* Create Form */}
                 {showCreateForm && (
-                  <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl p-6 border border-indigo-100">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New API Key</h3>
+                  <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-2xl p-6 border border-indigo-200/50 dark:border-indigo-800/50">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Create New API Key</h3>
 
                     {newlyCreatedKey ? (
                       <div className="space-y-4">
-                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
                           <div className="flex items-start gap-3">
-                            <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                             <div>
-                              <p className="font-medium text-amber-800">Save this key now!</p>
-                              <p className="text-sm text-amber-700 mt-1">This is the only time you'll see this key. Copy it somewhere safe.</p>
+                              <p className="font-medium text-amber-800 dark:text-amber-200">Save this key now!</p>
+                              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">This is the only time you'll see this key. Copy it somewhere safe.</p>
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <code className="flex-1 px-4 py-3 bg-gray-900 text-emerald-400 rounded-xl font-mono text-sm overflow-x-auto">
+                          <code className="flex-1 px-4 py-3 bg-slate-900 dark:bg-slate-950 text-emerald-400 rounded-xl font-mono text-sm overflow-x-auto">
                             {newlyCreatedKey}
                           </code>
                           <button
                             onClick={() => copyToClipboard(newlyCreatedKey)}
-                            className="p-3 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors"
+                            className="p-3 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors"
                             title="Copy to clipboard"
                           >
-                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                           </button>
@@ -591,7 +642,7 @@ export function Admin() {
                             setNewlyCreatedKey(null);
                             setShowCreateForm(false);
                           }}
-                          className="w-full py-2.5 text-gray-600 hover:text-gray-800 hover:bg-white/50 rounded-xl transition-colors font-medium"
+                          className="w-full py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded-xl transition-colors font-medium"
                         >
                           Done
                         </button>
@@ -600,7 +651,7 @@ export function Admin() {
                       <div className="space-y-4">
                         <div className="grid sm:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                               Key Name
                             </label>
                             <input
@@ -608,11 +659,11 @@ export function Admin() {
                               value={newKeyName}
                               onChange={(e) => setNewKeyName(e.target.value)}
                               placeholder="e.g., My Mobile App"
-                              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white"
+                              className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                               Rate Limit (requests/min)
                             </label>
                             <input
@@ -621,7 +672,7 @@ export function Admin() {
                               onChange={(e) => setNewKeyRateLimit(parseInt(e.target.value) || 60)}
                               min={1}
                               max={1000}
-                              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white"
+                              className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
                             />
                           </div>
                         </div>
@@ -629,7 +680,7 @@ export function Admin() {
                           <button
                             onClick={handleCreateApiKey}
                             disabled={creatingKey || !newKeyName.trim()}
-                            className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                            className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 gradient-bg hover:opacity-90 text-white font-medium rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                           >
                             {creatingKey ? (
                               <>
@@ -647,7 +698,7 @@ export function Admin() {
                           </button>
                           <button
                             onClick={() => setShowCreateForm(false)}
-                            className="px-5 py-3 text-gray-600 hover:text-gray-800 hover:bg-white rounded-xl transition-colors font-medium"
+                            className="px-5 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-colors font-medium"
                           >
                             Cancel
                           </button>
@@ -658,56 +709,56 @@ export function Admin() {
                 )}
 
                 {/* API Keys List */}
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-                    <h3 className="font-semibold text-gray-900">Active API Keys</h3>
+                <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-slate-200/50 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/50">
+                    <h3 className="font-semibold text-slate-900 dark:text-white">Active API Keys</h3>
                   </div>
 
                   {apiKeysLoading ? (
                     <div className="p-12 text-center">
-                      <div className="w-10 h-10 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4" />
-                      <p className="text-gray-500">Loading API keys...</p>
+                      <div className="w-10 h-10 border-3 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin mx-auto mb-4" />
+                      <p className="text-slate-500 dark:text-slate-400">Loading API keys...</p>
                     </div>
                   ) : apiKeys.length === 0 ? (
                     <div className="p-12 text-center">
-                      <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>
                       </div>
-                      <p className="text-gray-500 font-medium">No API keys yet</p>
-                      <p className="text-sm text-gray-400 mt-1">Create your first API key to get started</p>
+                      <p className="text-slate-500 dark:text-slate-400 font-medium">No API keys yet</p>
+                      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Create your first API key to get started</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-gray-100">
+                    <div className="divide-y divide-slate-200/50 dark:divide-slate-700/50">
                       {apiKeys.map((key) => (
-                        <div key={key.id} className="p-6 hover:bg-gray-50/50 transition-colors">
+                        <div key={key.id} className="p-6 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex items-start gap-4">
-                              <div className={`p-3 rounded-xl ${key.active ? 'bg-emerald-50' : 'bg-gray-100'}`}>
-                                <svg className={`w-5 h-5 ${key.active ? 'text-emerald-600' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <div className={`p-3 rounded-xl ${key.active ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                                <svg className={`w-5 h-5 ${key.active ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                                 </svg>
                               </div>
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-gray-900">{key.name}</span>
+                                  <span className="font-semibold text-slate-900 dark:text-white">{key.name}</span>
                                   <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
                                     key.active
-                                      ? 'bg-emerald-100 text-emerald-700'
-                                      : 'bg-gray-100 text-gray-500'
+                                      ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                                   }`}>
                                     {key.active ? 'Active' : 'Revoked'}
                                   </span>
                                 </div>
-                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-gray-500">
-                                  <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                  <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                                     {key.id}
                                   </span>
                                   <span>{key.rateLimit} req/min</span>
                                   <span>{key.usageCount.toLocaleString()} requests</span>
                                 </div>
-                                <div className="text-xs text-gray-400 mt-2">
+                                <div className="text-xs text-slate-400 dark:text-slate-500 mt-2">
                                   Created {new Date(key.createdAt).toLocaleDateString()} by {key.createdBy}
                                   {key.lastUsedAt && (
                                     <> · Last used {new Date(key.lastUsedAt).toLocaleDateString()}</>
@@ -718,7 +769,7 @@ export function Admin() {
                             {key.active && (
                               <button
                                 onClick={() => handleRevokeApiKey(key.id, key.name)}
-                                className="px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors font-medium text-sm"
+                                className="px-4 py-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors font-medium text-sm"
                               >
                                 Revoke
                               </button>
@@ -731,18 +782,18 @@ export function Admin() {
                 </div>
 
                 {/* API Usage Instructions */}
-                <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 text-white">
+                <div className="bg-slate-900 dark:bg-slate-950 rounded-2xl p-6 text-white">
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                     </svg>
                     API Usage
                   </h3>
-                  <p className="text-gray-400 text-sm mb-4">
-                    Include your API key in the <code className="text-emerald-400 bg-gray-800 px-1.5 py-0.5 rounded">X-API-Key</code> header of your requests.
+                  <p className="text-slate-400 text-sm mb-4">
+                    Include your API key in the <code className="text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded">X-API-Key</code> header of your requests.
                   </p>
-                  <div className="bg-gray-950 rounded-xl p-4 font-mono text-sm overflow-x-auto">
-                    <div className="text-gray-500"># Get card image by slug</div>
+                  <div className="bg-slate-950 dark:bg-black/50 rounded-xl p-4 font-mono text-sm overflow-x-auto border border-slate-800">
+                    <div className="text-slate-500"># Get card image by slug</div>
                     <div className="text-emerald-400 mt-2">
                       curl -H "X-API-Key: YOUR_API_KEY" \
                     </div>
@@ -751,16 +802,16 @@ export function Admin() {
                     </div>
                   </div>
                   <div className="mt-4 grid sm:grid-cols-3 gap-4 text-sm">
-                    <div className="bg-gray-800/50 rounded-xl p-3">
-                      <div className="text-gray-400">Endpoint</div>
+                    <div className="bg-slate-800/50 dark:bg-slate-900/50 rounded-xl p-3 border border-slate-700/50">
+                      <div className="text-slate-400">Endpoint</div>
                       <div className="font-mono text-indigo-400 mt-1">/api/v1/cards/:slug/image</div>
                     </div>
-                    <div className="bg-gray-800/50 rounded-xl p-3">
-                      <div className="text-gray-400">Rate Limit Header</div>
+                    <div className="bg-slate-800/50 dark:bg-slate-900/50 rounded-xl p-3 border border-slate-700/50">
+                      <div className="text-slate-400">Rate Limit Header</div>
                       <div className="font-mono text-indigo-400 mt-1">X-RateLimit-Remaining</div>
                     </div>
-                    <div className="bg-gray-800/50 rounded-xl p-3">
-                      <div className="text-gray-400">Redirect Option</div>
+                    <div className="bg-slate-800/50 dark:bg-slate-900/50 rounded-xl p-3 border border-slate-700/50">
+                      <div className="text-slate-400">Redirect Option</div>
                       <div className="font-mono text-indigo-400 mt-1">?redirect=true</div>
                     </div>
                   </div>
@@ -775,11 +826,11 @@ export function Admin() {
           <div className="mt-8">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Card Library</h2>
-                <p className="text-sm text-gray-500 mt-1">{totalItems} cards in database</p>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Card Library</h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{totalItems} cards in database</p>
               </div>
             </div>
-            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800/50 rounded-3xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden">
               <CardTable
                 cards={cards}
                 loading={loading}
@@ -796,30 +847,13 @@ export function Admin() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto py-6 border-t border-gray-100 bg-white/50">
+      <footer className="mt-auto py-6 border-t border-slate-200/50 dark:border-slate-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-400">
+          <p className="text-center text-sm text-slate-600 dark:text-slate-500">
             Credit Card API · Admin Dashboard
           </p>
         </div>
       </footer>
-
-      {/* Animation styles */}
-      <style>{`
-        @keyframes slide-in {
-          from {
-            opacity: 0;
-            transform: translateX(100px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0) scale(1);
-          }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      `}</style>
     </div>
   );
 }
